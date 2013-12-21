@@ -2,10 +2,6 @@
 
 import os
 import time
-import string
-
-js_dir   = "html/js"
-data_dir = "data"
 
 def parse_rate(data_path, data_list):
 	list_buy  = []
@@ -124,6 +120,9 @@ def write_volume(js_path, volume_list):
 	js_object.close()
 
 if __name__ == "__main__":
+	js_dir   = "html/js"
+	data_dir = "data"
+
 	data_names = os.listdir(data_dir)
 	for data_name in data_names:
 		js_path  = os.path.join(js_dir, data_name + ".js")
