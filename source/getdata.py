@@ -39,7 +39,7 @@ sell_offer_cmd='{ \
 offer_dict = {}
 last_output_file = {}
 
-def output_data(time, id, rate):
+def output_data(time, id, volume, rate):
 	global last_output_file
 
 	file_name = os.path.join("data", time.split()[0])
@@ -54,7 +54,7 @@ def output_data(time, id, rate):
 		last_output_file["object"]  = open(file_name, "a")
 		last_output_file["counter"] = 0
 
-	last_output_file["object"].write("%s,%s,%0.04f\n" % (time, id, rate))
+	last_output_file["object"].write("%s,%s,%.01f,%0.04f\n" % (time, id, volume, rate))
 	last_output_file["counter"] += 1
 	if last_output_file["counter"] > 7:
 		last_output_file["object"].flush()
@@ -138,7 +138,7 @@ def parse_modified_node(node, id):
 		pays = fields_list[0][2] - fields_list[1][2]
 		rate = fields_list[0][3]
 		logging.info("[%s] Sell: %0.1f XRP @ %.04f" % (current_time, gets, rate))
-	output_data(current_time, id, rate)
+	output_data(current_time, id, gets, rate)
 
 def parse_created_node(node, id):
 	if "NewFields" not in node:

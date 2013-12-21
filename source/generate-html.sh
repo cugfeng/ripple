@@ -8,7 +8,7 @@ for js_file in js/*.js; do
 
 	if [ ! -f $html_name ]; then
 		echo "Generate $html_name"
-		cp -f template/linechart.html $html_name
+		cp -f template/chart.html $html_name
 		sed -i "s/date/$date/" $html_name
 	fi
 done
