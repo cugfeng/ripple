@@ -7,6 +7,8 @@ import os
 import logging
 from optparse import OptionParser
 
+from parsedata import parse_data
+
 server="wss://s1.ripple.com"
 buy_offer_cmd='{ \
 	"command":"subscribe", \
@@ -39,26 +41,31 @@ sell_offer_cmd='{ \
 offer_dict = {}
 last_output_file = {}
 
-def output_data(time, id, volume, rate):
+def output_data(time_string, id, volume, rate):
 	global last_output_file
 
-	file_name = os.path.join("data", time.split()[0])
+	current_time = time.strptime(time_string, "%Y-%m-%d %H:%M:%S")
+	file_name    = time.strftime("%Y-%m-%d", current_time)
+	file_path    = os.path.join("data", file_name)
 	if "name" not in last_output_file:
-		last_output_file["name"]    = file_name
-		last_output_file["object"]  = open(file_name, "a")
+		last_output_file["name"]    = file_path
+		last_output_file["object"]  = open(file_path, "a")
 		last_output_file["counter"] = 0
-	elif file_name != last_output_file["name"]:
+	elif file_path != last_output_file["name"]:
 		last_output_file["object"].flush()
 		last_output_file["object"].close()
-		last_output_file["name"]    = file_name
-		last_output_file["object"]  = open(file_name, "a")
+		last_output_file["name"]    = file_path
+		last_output_file["object"]  = open(file_path, "a")
 		last_output_file["counter"] = 0
 
-	last_output_file["object"].write("%s,%s,%.01f,%0.04f\n" % (time, id, volume, rate))
+	last_output_file["object"].write("%s,%s,%.01f,%0.04f\n" % (time_string, id, volume, rate))
 	last_output_file["counter"] += 1
 	if last_output_file["counter"] > 7:
 		last_output_file["object"].flush()
 		last_output_file["counter"] = 0
+
+		js_path = os.path.join("html/js", file_name + ".js")
+		parse_data(file_path, js_path)
 
 # TODO: should not name variable as 'id'
 def get_offer(offer, id):
@@ -105,7 +112,7 @@ def parse_modified_node(node, id):
 	logging.debug(">>>parse_modified_node %s" % id)
 	logging.debug(node)
 
-	current_time=time.strftime("%Y-%m-%d %H:%M:%S")
+	time_string = time.strftime("%Y-%m-%d %H:%M:%S")
 	if id == "buy":
 		fields_list = []
 		previous_fields = node["PreviousFields"]
@@ -121,7 +128,7 @@ def parse_modified_node(node, id):
 		gets = fields_list[0][1] - fields_list[1][1]
 		pays = fields_list[0][2] - fields_list[1][2]
 		rate = fields_list[0][3]
-		logging.info("[%s] Buy: %0.1f XRP @ %.04f" % (current_time, gets, rate))
+		logging.info("[%s] Buy: %0.1f XRP @ %.04f" % (time_string, gets, rate))
 	elif id == "sell":
 		fields_list = []
 		previous_fields = node["PreviousFields"]
@@ -137,8 +144,8 @@ def parse_modified_node(node, id):
 		gets = fields_list[0][1] - fields_list[1][1]
 		pays = fields_list[0][2] - fields_list[1][2]
 		rate = fields_list[0][3]
-		logging.info("[%s] Sell: %0.1f XRP @ %.04f" % (current_time, gets, rate))
-	output_data(current_time, id, gets, rate)
+		logging.info("[%s] Sell: %0.1f XRP @ %.04f" % (time_string, gets, rate))
+	output_data(time_string, id, gets, rate)
 
 def parse_created_node(node, id):
 	if "NewFields" not in node:
@@ -152,13 +159,13 @@ def parse_created_node(node, id):
 	logging.debug(node)
 
 	new_fields = node["NewFields"]
-	current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+	time_string = time.strftime("%Y-%m-%d %H:%M:%S")
 	if id == "buy":
 		offer = get_offer(new_fields, True)
-		logging.info("[%s] Buy offer: %0.1f XRP @ %.04f" % (current_time, offer[2], offer[3]))
+		logging.info("[%s] Buy offer: %0.1f XRP @ %.04f" % (time_string, offer[2], offer[3]))
 	elif id == "sell":
 		offer = get_offer(new_fields, False)
-		logging.info("[%s] Sell offer: %0.1f XRP @ %.04f" % (current_time, offer[1], offer[3]))
+		logging.info("[%s] Sell offer: %0.1f XRP @ %.04f" % (time_string, offer[1], offer[3]))
 
 def parse_transaction(data):
 	logging.debug(">>>parse_transaction")
