@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="js/2013-12-22.js"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var rate_options = {
+			title: 'Ripple rate',
+			vAxis: {title: 'Rate in CNY'}
+		};
+        var rate_data = google.visualization.arrayToDataTable(rate_array);
+        var rate_chart = new google.visualization.LineChart(document.getElementById('rate_chart_div'));
+        rate_chart.draw(rate_data, rate_options);
+
+        var volume_options = {
+			title: 'Ripple volume',
+			vAxis: {title: 'Volume in XRP'},
+			isStacked: true
+		};
+        var volume_data = google.visualization.arrayToDataTable(volume_array);
+        var volume_chart = new google.visualization.SteppedAreaChart(document.getElementById('volume_chart_div'));
+        volume_chart.draw(volume_data, volume_options);
+      }
+    </script>
+  </head>
+  <body onresize="drawChart()" >
+    <div id="rate_chart_div" style="top: 3%; left: 5%; width: 90%; height: 45%;"></div>
+    <div id="volume_chart_div" style="top: 3%; left: 5%; width: 90%; height: 45%;"></div>
+  </body>
+</html>
