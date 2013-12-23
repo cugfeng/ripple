@@ -2,7 +2,7 @@
 
 import os
 import sys
-sys.path.append('..')
+sys.path.append('../source')
 from parsedata import parse_data
 
 if __name__ == "__main__":
@@ -23,5 +23,5 @@ if __name__ == "__main__":
 				parse_data(data_path, js_path)
 			else:
 				print "Skip %s, %s already exist" % (data_path, js_path)
-	os.system("cd ..; ./generate-html.sh")
+	os.system("cd ../source; ./generate-html.sh")
 

@@ -41,12 +41,18 @@ sell_offer_cmd='{ \
 offer_dict = {}
 last_output_file = {}
 
+dir_data = "../data"
+dir_js   = "../html/js"
+dir_logs = "../logs"
+
 def output_data(time_string, id, volume, rate):
 	global last_output_file
+	global dir_data
+	global dir_js
 
 	current_time = time.strptime(time_string, "%Y-%m-%d %H:%M:%S")
 	file_name    = time.strftime("%Y-%m-%d", current_time)
-	file_path    = os.path.join("data", file_name)
+	file_path    = os.path.join(dir_data, file_name)
 	if "name" not in last_output_file:
 		last_output_file["name"]    = file_path
 		last_output_file["object"]  = open(file_path, "a")
@@ -64,7 +70,7 @@ def output_data(time_string, id, volume, rate):
 		last_output_file["object"].flush()
 		last_output_file["counter"] = 0
 
-		js_path = os.path.join("html/js", file_name + ".js")
+		js_path = os.path.join(dir_js, file_name + ".js")
 		parse_data(file_path, js_path)
 
 # TODO: should not name variable as 'id'
@@ -218,7 +224,6 @@ def main_socket():
 		exit(-1)
 
 def main_file():
-	dir_logs = "logs"
 	names = os.listdir(dir_logs)
 	for name in names:
 		if name.endswith(".result"):

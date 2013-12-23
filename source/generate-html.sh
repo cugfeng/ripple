@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd html
+cd ../html
 for js_file in js/*.js; do
 	js_name=`basename $js_file`
 	date=`echo $js_name | sed 's/\.js$//'`
