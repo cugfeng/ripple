@@ -73,6 +73,11 @@ def write_rate(js_path, rate_list):
 	js_object.flush()
 	js_object.close()
 
+def init_volume(volume_list):
+	for i in range(0, 24):
+		time_string = '{:02d}:00'.format(i)
+		volume_list.append((time_string, 0.0, 0.0))
+
 def parse_volume(data_path, volume_list):
 	volume    = {"buy": 0.0, "sell": 0.0}
 	last_time = None
@@ -89,15 +94,16 @@ def parse_volume(data_path, volume_list):
 		if last_time is not None:
 			last_hour = last_time.tm_hour
 			if current_hour != last_hour:
-				time_string = time.strftime("%H:00", last_time)
-				volume_list.append((time_string, volume["buy"], volume["sell"]))
+				time_string = '{:02d}:00'.format(last_hour)
+				volume_list[last_hour] = (time_string, volume["buy"], volume["sell"])
 				volume = {"buy": 0.0, "sell": 0.0}
 
 		last_time = current_time
 		volume[line_data[1]] += float(line_data[2])
 	else:
-		time_string = time.strftime("%H:00", last_time)
-		volume_list.append((time_string, volume["buy"], volume["sell"]))
+		last_hour = last_time.tm_hour
+		time_string = '{:02d}:00'.format(last_hour)
+		volume_list[last_hour] = (time_string, volume["buy"], volume["sell"])
 
 	data_object.close()
 
@@ -127,6 +133,7 @@ def parse_data(data_path, js_path):
 	write_rate(js_path, rate_list)
 
 	volume_list = []
+	init_volume(volume_list)
 	parse_volume(data_path, volume_list)
 	write_volume(js_path, volume_list)
 
